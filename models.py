@@ -451,6 +451,7 @@ class Doc(object):
         l = []
         for weight,id in db.run('select weight,to_doc from RelatedDocs '
                                 '  where from_doc=? and weight > ? '
+                                '  and to_doc in (select distinct id from Docs) '
                                 '  order by weight desc'
                                 '  limit ?', self.id, minweight, max):
             l.append(dict(weight=weight, doc=Doc(id)))
