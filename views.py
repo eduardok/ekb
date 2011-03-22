@@ -102,13 +102,16 @@ def pdf(req, id, docname):
     if not doc:
         raise Http404("Document #%d (%s) does not exist." % (docid, id))
     else:
+        #adds a non breaking space at the end to avoid Figure X captions
+        markdownfix = re.compile("!\[\]\((?P<name> .*)\)", re.VERBOSE)
         mdfx = NamedTemporaryFile()
         name = mdfx.name
 
         mdfname = name + '.mdown'
         mdf = open(mdfname, 'w')
-        mdf.write(doc.expanded_text(urlexpander, headerdepth=1, expandbooks=1)
-                  .encode('utf-8'))
+        mdf.write(markdownfix.sub(r'![](\g<name>)\\ ',
+                  doc.expanded_text(urlexpander, headerdepth=1, expandbooks=1)
+                  .encode('utf-8')))
         mdf.flush()
 
         p = Popen(args = ['pandoc',
